@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from rest_framework.serializers import ModelSerializer
 
-from .models import Country, County, Constituency, Ward
+from .models import Country, County, Constituency, Ward, HealthFacility
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
@@ -84,7 +84,7 @@ class WardSerializer(GeoFeatureModelSerializer):
         auto_bbox = True
         # you can also explicitly declare which fields you want to include
         # as with a ModelSerializer.
-        fields = ('objectid', 'name', 'shape_leng', 'shape_area', 'geom')
+        fields = ('objectid', 'name', 'shape_leng', 'shape_area', 'geom','ward_dhis2_id')
 
 
 class WardDetailSerializer(GeoFeatureModelSerializer):
@@ -95,4 +95,23 @@ class WardDetailSerializer(GeoFeatureModelSerializer):
         auto_bbox = True
         # you can also explicitly declare which fields you want to include
         # as with a ModelSerializer.
-        fields = ('objectid', 'name', 'shape_leng', 'shape_area', 'geom')
+        fields = ('objectid', 'name', 'shape_leng', 'shape_area', 'geom', 'ward_dhis2_id')
+
+
+# HealthFacility
+class HealthFacilitySerializer(ModelSerializer):
+    """ A class to serialize locations as GeoJSON compatible data """
+    class Meta:
+        model = HealthFacility
+        # you can also explicitly declare which fields you want to include
+        # as with a ModelSerializer.
+        fields = ('orgunitid', 'orgunitname', 'dhis2parentid', 'dhis2id', 'lat', 'long')
+
+
+class HealthFacilityDetailSerializer(ModelSerializer):
+    """ A class to serialize locations as GeoJSON compatible data """
+    class Meta:
+        model = HealthFacility
+        # you can also explicitly declare which fields you want to include
+        # as with a ModelSerializer.
+        fields = ('orgunitid', 'orgunitname', 'dhis2parentid', 'dhis2id', 'lat', 'long')

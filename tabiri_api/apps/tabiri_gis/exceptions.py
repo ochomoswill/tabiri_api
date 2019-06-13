@@ -19,3 +19,8 @@ class ConstituencyDoesNotExist(APIException):
 class WardDoesNotExist(APIException):
     status_code = 400
     default_detail = 'The requested ward does not exist.'
+
+
+class HealthFacilityDoesNotExist(object):
+    status_code = 400
+    default_detail = 'The requested health facility does not exist.'

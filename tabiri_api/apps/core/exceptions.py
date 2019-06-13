@@ -12,6 +12,7 @@ def core_exception_handler(exc, context):
         'CountyDoesNotExist': _handle_generic_error,
         'ConstituencyDoesNotExist': _handle_generic_error,
         'WardDoesNotExist': _handle_generic_error,
+        'HealthFacilityDoesNotExist': _handle_generic_error,
     }
     # This is how we identify the type of the current exception. We will use
     # this in a moment to see whether we should handle this exception or let

@@ -35,3 +35,12 @@ class WardsJSONRenderer(TabiriAPIJSONRenderer):
 
 class WardJSONRenderer(TabiriAPIJSONRenderer):
     object_label = 'ward'
+
+
+# HealthFacility
+class HealthFacilitiesJSONRenderer(TabiriAPIJSONRenderer):
+    object_label = 'health_facilities'
+
+
+class HealthFacilityJSONRenderer(TabiriAPIJSONRenderer):
+    object_label = 'health_facility'

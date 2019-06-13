@@ -16,7 +16,6 @@ ward_mapping = {
     'county_cod': 'COUNTY_COD',
     'shape_leng': 'Shape_Leng',
     'county_nam': 'COUNTY_NAM',
-    'shape_le_1': 'Shape_Le_1',
     'geom': 'MULTIPOLYGON',
 }
 

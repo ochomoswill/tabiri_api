@@ -3,12 +3,13 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.reverse import reverse
 
 from tabiri_api.apps.tabiri_gis.exceptions import CountyDoesNotExist, CountryDoesNotExist, ConstituencyDoesNotExist, \
-    WardDoesNotExist
+    WardDoesNotExist, HealthFacilityDoesNotExist
 from tabiri_api.apps.tabiri_gis.renderers import CountyJSONRenderer, CountryJSONRenderer, \
     CountriesJSONRenderer, CountiesJSONRenderer, ConstituenciesJSONRenderer, ConstituencyJSONRenderer, \
-    WardsJSONRenderer, WardJSONRenderer
-from .serializers import CountrySerializer, CountySerializer, ConstituencySerializer, WardSerializer
-from .models import Country, County, Constituency, Ward
+    WardsJSONRenderer, WardJSONRenderer, HealthFacilitiesJSONRenderer
+from .serializers import CountrySerializer, CountySerializer, ConstituencySerializer, WardSerializer, \
+    HealthFacilitySerializer
+from .models import Country, County, Constituency, Ward, HealthFacility
 from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -20,6 +21,10 @@ def api_root(request, format=None):
         'countries': reverse('tabiri_gis:countries-list', request=request, format=format),
         # 'country': reverse('tabiri_gis:country-detail', request=request, format=format),
         'counties': reverse('tabiri_gis:counties-list', request=request, format=format),
+        # 'county': reverse('tabiri_gis:county-detail', request=request, format=format),
+        'wards': reverse('tabiri_gis:wards-list', request=request, format=format),
+        # 'county': reverse('tabiri_gis:county-detail', request=request, format=format),
+        #'health-facilities': reverse('tabiri_gis:health-facilities-list', request=request, format=format),
         # 'county': reverse('tabiri_gis:county-detail', request=request, format=format),
     })
 
@@ -174,5 +179,43 @@ class WardRetrieveView(RetrieveAPIView):
             raise WardDoesNotExist
 
         serializer = self.serializer_class(ward)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# HealthFacility
+class HealthFacilityListView(ListAPIView):
+    queryset = HealthFacility.objects.all()
+    serializer_class = HealthFacilitySerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = HealthFacility.objects.all()
+        print(queryset)
+        dhis2parentid = self.request.query_params.get('dhis2parentid', None)
+        if dhis2parentid is not None:
+            queryset = queryset.filter(dhis2parentid=dhis2parentid)
+        return queryset
+
+
+class HealthFacilityRetrieveView(RetrieveAPIView):
+    queryset = HealthFacility.objects.all()
+    serializer_class = HealthFacilitySerializer
+    renderer_classes = (HealthFacilitiesJSONRenderer,)
+
+    def retrieve(self, request, orgunitid, *args, **kwargs):
+        # Try to retrieve the requested cou and throw an exception if the
+        # profile could not be found.
+        try:
+            # We use the `select_related` method to avoid making unnecessary
+            # database calls.
+            health_facility = HealthFacility.objects.get(orgunitid=orgunitid)
+        except HealthFacility.DoesNotExist:
+            raise HealthFacilityDoesNotExist
+
+        serializer = self.serializer_class(health_facility)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
