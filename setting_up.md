@@ -71,3 +71,22 @@ Enable the postgis extension. Connect to psql then execute the below script
 ```shell
 dbname=# CREATE EXTENSION postgis;
 ```
+
+
+## API
+
+Install virtualenvwrapper
+
+```shell
+sudo pip3 install virtualenvwrapper
+```
+
+Add config to .bashrc
+
+```shell
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
+source /usr/local/bin/virtualenvwrapper.sh
+```
+
+
