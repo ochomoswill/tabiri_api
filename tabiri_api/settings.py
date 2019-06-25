@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'tabiri_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'tabiri_api_db',
+        'NAME': 'backup_tabiri_api_db',
         'USER': 'tabiri_api_user',
         'HOST': 'localhost',
         'PASSWORD': 'tabiri@2019',
