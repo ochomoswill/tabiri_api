@@ -6,9 +6,9 @@ Requirements include:
 * The PostgreSQL database for persisting data
 * The PostGIS extension for supporting spatial features in the PostgreSQL database
 * pip for installing dependencies
-* The venv module for managing a virtual environment
+* The virtualenvwrapper module for managing a virtual environment
 
-1. Install Python
+#### Install Python
 
 First check if python is installed
 `python3 --version`
@@ -16,7 +16,7 @@ First check if python is installed
 If its not installed run
 `sudo apt install python3`
 
-2. Install dependencies of GeoDjango
+#### Install dependencies of GeoDjango
 
 ```
 sudo apt install gdal-bin libgdal-dev
@@ -24,13 +24,13 @@ sudo apt install python3-gdal
 sudo apt install binutils libproj-dev
 ```
 
-3. Install Postgres
+#### Install Postgres
 
 ```
 sudo apt install python3-pip libpq-dev postgresql postgresql-contrib nginx curl
 ```
 
-4. Install Postgis
+#### Install Postgis
 
 ```shell
 sudo apt-get install postgis
@@ -90,6 +90,8 @@ dbname=# CREATE EXTENSION postgis;
 
 ## API
 
+#### Setting up the virtual environment
+
 Install virtualenvwrapper
 
 ```shell
@@ -115,6 +117,8 @@ To work on the tabiri_venv
 ```shell
 workon tabiri_venv
 ```
+
+#### Setting up the project
 
 Clone the api from the repo
 
@@ -147,7 +151,7 @@ Fake migrate
 python manage.py migrate --fake
 ```
 
-Testing Gunicorn's Ability to Serve the Project
+#### Testing Gunicorn's Ability to Serve the Project
 
 go to the root directory of the project
 
@@ -156,7 +160,132 @@ gunicorn --bind 0.0.0.0:8000 tabiri_api.wsgi
 ```
 
 
-### FAQ
+#### Creating systemd Socket and Service Files for Gunicorn
+
+creating and opening a systemd socket file for Gunicorn
+
+```shell
+sudo nano /etc/systemd/system/gunicorn.socket
+```
+
+contents as below
+
+```text
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+```
+
+create and open a systemd service file for Gunicorn
+
+```shell
+sudo nano /etc/systemd/system/gunicorn.service
+```
+
+contents as below
+```text
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=user_account_name
+Group=www-data
+WorkingDirectory=/home/user_account_name/myprojectdir
+ExecStart=/home/user_account_name/.virtualenvs/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          djangoprojectname.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+```
+
+start and enable the Gunicorn socket
+```shell
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+```
+
+check the status of the Gunicorn service
+```shell
+sudo systemctl status gunicorn
+```
+
+you can test that the api is app by 
+```shell
+curl --unix-socket /run/gunicorn.sock 127.0.0.1:8000/api/gis/countries
+```
+
+If you make changes to the /etc/systemd/system/gunicorn.service file, reload the daemon to reread the service definition and restart the Gunicorn process by typing:
+```shell
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+```
+
+
+#### Configure Nginx to Proxy Pass to Gunicorn
+
+creating and opening a new server block in Nginx's sites-available directory:
+```shell
+sudo nano /etc/nginx/sites-available/myproject
+```
+
+content as below:
+
+```text
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/user_account_name/myprojectdir;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+```
+
+
+enable the file by linking it to the sites-enabled directory
+
+```shell
+sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+```
+
+Test your Nginx configuration for syntax errors by typing:
+
+```shell
+sudo nginx -t
+```
+
+if no errors are reported, go ahead and restart Nginx by typing:
+
+```shell
+sudo systemctl restart nginx
+```
+
+Finally, we need to open up our firewall to normal traffic on port 80. Since we no longer need access to the development server, we can remove the rule to open port 8000 as well:
+
+```shell
+sudo ufw delete allow 8000
+sudo ufw allow 'Nginx Full'
+```
+
+### FYI
+
+#### Database
 
 After installing PostgreSQL I did the below steps. 
 
@@ -208,6 +337,29 @@ Authentication methods details:
 *  trust - anyone who can connect to the server is authorized to access the database
 *  peer - use client's operating system user name as database user name to access it.
 *  md5 - password-base authentication
+
+
+#### API
+
+If you update your Django application, you can restart the Gunicorn process to pick up the changes by typing:
+
+```shell
+sudo systemctl restart gunicorn
+```
+
+If you change Gunicorn socket or service files, reload the daemon and restart the process by typing:
+
+```shell
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn.socket gunicorn.service
+```
+
+
+If you change the Nginx server block configuration, test the configuration and then Nginx by typing:
+
+```shell
+sudo nginx -t && sudo systemctl restart nginx
+```
 
 
 
