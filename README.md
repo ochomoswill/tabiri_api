@@ -58,12 +58,6 @@ $ sudo apt install binutils libproj-dev
 $ sudo apt install python3-pip libpq-dev postgresql postgresql-contrib nginx curl
 ```
 
-#### Install Postgis
-
-```shell
-$ sudo apt-get install postgis
-```
-
 ### Setting Up Database
 
 #### Import database
@@ -133,12 +127,18 @@ Install virtualenvwrapper
 $ sudo pip3 install virtualenvwrapper
 ```
 
-Add config to .bashrc
+Add config to .bashrc on the home directory
 
 ```txt
 export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
 export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
 source /usr/local/bin/virtualenvwrapper.sh
+```
+
+Execute the virtualenvwrapper
+
+```shell
+$ source .bashrc
 ```
 
 Create virtual env
@@ -184,13 +184,6 @@ Move into the root directory of the project. Run the below command to install th
 $ pip3 install -r requirements.txt
 ```
 
-Also install the below
-
-```shell
-$ pip install gunicorn psycopg2
-```
-
-
 Add the allowed hosts to `settings.py`
 
 ```python
@@ -209,7 +202,7 @@ To start the application. Run the below the root directory
 $ python manage.py runserver
 ```
 
-you can test that the api is app by 
+You can test that the api is app by 
 ```shell
 curl 127.0.0.1:8000/api/gis/countries
 ```

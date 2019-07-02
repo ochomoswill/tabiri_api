@@ -124,3 +124,7 @@ dmypy.json
 
 # Intellij
 .idea/
+
+
+# Last SQL File
+tabiri_api_db.sql
