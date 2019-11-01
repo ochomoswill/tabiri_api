@@ -26,7 +26,7 @@ ephem==3.7.6.0
 fbprophet==0.5
 gunicorn==19.9.0
 holidays==0.9.10
-httpie==1.0.2
+httpie==1.0.3
 idna==2.8
 impyute==0.0.8
 ipykernel==5.1.1
